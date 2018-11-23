@@ -1,6 +1,6 @@
 const express = require('express');
 const chatRouter = express.Router();
-const {createMessage, fetchMessages} = require('./chat.controller');
+const {createMessage, fetchMessages, deleteMessage} = require('./chat.controller');
 const {gotBody, checkFields} = require('../../services/request.checker');
 const {verifyToken} = require('../../services/middleware');
 const {sendBodyError, sendFieldsError, sendApiSuccess, sendApiError} = require('../../services/server.response');
@@ -35,6 +35,26 @@ class ChatRouterClass {
             }).catch((apiResponseErr) => {
                 sendApiError(res, null, apiResponseErr);
             });
+        });
+
+        chatRouter.delete('/:id', (req, res) => {
+            const jwt = verifyToken(req, res);
+
+            if (gotBody(req.params)) {
+                sendBodyError(res, 'No data provided.');
+            }
+
+            const {validity, extra, miss} = checkFields(['id'], req.params);
+
+            if (!validity) {
+                sendFieldsError(res, extra, miss, 'Bad fields provided');
+            } else {
+                deleteMessage(req.params, jwt).then((apiResponse) => {
+                    sendApiSuccess(res, apiResponse, 'Message successfully deleted.');
+                }).catch((apiResponseErr) => {
+                    sendApiError(res, apiResponseErr, apiResponseErr._message);
+                });
+            }
         });
     }
 

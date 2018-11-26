@@ -7,3 +7,4 @@
     * `/chat`
         * `POST - /` | `{message: 'Bonjour !'}`
         * `GET - /`
+        * `DELETE - /{id}`
